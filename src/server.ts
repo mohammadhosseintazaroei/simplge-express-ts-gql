@@ -1,9 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import Router from "./router/router";
+import { router } from "./router/router";
 dotenv.config();
-const app: Express = express();
-const port = process.env.PORT;
 
 export class Application {
   #app = express();
@@ -23,7 +21,6 @@ export class Application {
   }
 
   CreateRoutes() {
-    this.#app.use(Router);
+    this.#app.use(router);
   }
-
 }

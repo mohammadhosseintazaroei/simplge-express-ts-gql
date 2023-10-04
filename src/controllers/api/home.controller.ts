@@ -1,10 +1,10 @@
 import { Get, Route, Tags } from "tsoa";
 
-@Route("/")
+@Route("home")
 @Tags("Home")
 export class HomeController {
-  @Get("/")
-  public async home(userId: string): Promise<any> {
+  @Get("{dd}")
+  public async home(dd: string): Promise<any> {
     return { message: "welcome home" };
   }
 }

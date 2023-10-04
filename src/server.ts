@@ -2,7 +2,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import morgan from "morgan";
-import { RegisterRoutes } from "../dist/routes/routes";
+import { RegisterRoutes } from "../build/routes/routes";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
@@ -28,7 +28,7 @@ export class Application {
       swaggerUi.serve,
       async (_req: Request, res: Response) => {
         return res.send(
-          swaggerUi.generateHTML(await import("../dist/swagger.json"))
+          swaggerUi.generateHTML(await import("../build/swagger.json"))
         );
       }
     );

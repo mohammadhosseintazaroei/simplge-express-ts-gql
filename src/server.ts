@@ -1,10 +1,11 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import morgan from "morgan";
 import { RegisterRoutes } from "../dist/routes/routes";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
+import { ValidateError } from "tsoa";
 export class Application {
   #app = express();
   #PORT;
@@ -13,6 +14,7 @@ export class Application {
     this.ConfigApplication();
     this.CreateServer();
     this.CreateRoutes();
+    this.ErrorHandeling();
   }
 
   ConfigApplication() {
@@ -42,5 +44,34 @@ export class Application {
 
   CreateRoutes() {
     RegisterRoutes(this.#app);
+  }
+
+  ErrorHandeling() {
+    this.#app.use(function notFoundHandler(_req, res: Response) {
+      res.status(404).send({
+        message: "Not Found",
+      });
+    });
+    this.#app.use(function errorHandler(
+      err: unknown,
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Response | void {
+      if (err instanceof ValidateError) {
+        console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
+        return res.status(422).json({
+          message: "Validation Failed",
+          details: err?.fields,
+        });
+      }
+      if (err instanceof Error) {
+        return res.status(500).json({
+          message: "Internal Server Error",
+        });
+      }
+
+      next();
+    });
   }
 }

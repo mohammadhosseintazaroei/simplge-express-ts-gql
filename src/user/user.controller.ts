@@ -1,22 +1,28 @@
-// src/controllers/UserController.ts
-
-import { Route, Get, Post, Controller, Body } from "tsoa";
-import { User } from "../types/interfaces/user/user-model.interface";
+import {
+  Route,
+  Get,
+  Post,
+  Controller,
+  Body,
+  Middlewares,
+  Example,
+  Consumes,
+} from "tsoa";
+import { CreateUserDto } from "./dto/user.dto";
+import { UsersServices } from "./user.srvice";
 
 @Route("user")
 export class UserController extends Controller {
-  @Get()
-  public async getUser(): Promise<any> {
-    return { message: "Fetch a specific user." };
-  }
-
   @Get("all")
   public async getAllUsers(): Promise<any> {
-    return { message: "Fetch all users." };
+    this.setStatus(201); // set return status 201
+    return UsersServices.getAll();
   }
 
   @Post("create")
-  public async createUser(@Body() requestBody: User): Promise<any> {
-    return { user: requestBody, message: "User created successfully." };
+  @Consumes("application/x-www-form-urlencoded")
+  public async createUser(@Body() requestBody: CreateUserDto): Promise<any> {
+    this.setStatus(201); // set return status 201
+    return UsersServices.create(requestBody);
   }
 }

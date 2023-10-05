@@ -6,15 +6,20 @@ import { RegisterRoutes } from "../build/routes/routes";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
+import mongoose, { ConnectOptions } from "mongoose";
+import { Error } from "mongoose";
 export class Application {
   #app = express();
   #PORT;
-  constructor(PORT: string) {
+  #DB_URL;
+  constructor(PORT: string, DB_URL: string) {
     this.#PORT = PORT;
+    this.#DB_URL = DB_URL;
     this.ConfigApplication();
     this.CreateServer();
     this.CreateRoutes();
     this.ErrorHandeling();
+    this.ConnectToMongoDb();
   }
 
   ConfigApplication() {
@@ -44,6 +49,24 @@ export class Application {
 
   CreateRoutes() {
     RegisterRoutes(this.#app);
+  }
+
+  ConnectToMongoDb() {
+    mongoose.connect(this.#DB_URL);
+    mongoose.connection.on("connected", () => {
+      console.log("Connected to MongoDb");
+    });
+    mongoose.connection.on("disconnect", () => {
+      console.log("MOngoDb is disconnected");
+    });
+    process.on("SIGINT", async () => {
+      await mongoose.connection.close();
+      process.exit(0);
+    });
+    process.on("SIGTERM", async () => {
+      await mongoose.connection.close();
+      process.exit(0);
+    });
   }
 
   ErrorHandeling() {

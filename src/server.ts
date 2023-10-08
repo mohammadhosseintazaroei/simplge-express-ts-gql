@@ -1,13 +1,17 @@
-import express, { Express, NextFunction, Request, Response } from "express";
-import dotenv from "dotenv";
-dotenv.config();
-import morgan from "morgan";
-import { RegisterRoutes } from "../build/routes/routes";
 import bodyParser from "body-parser";
+import dotenv from "dotenv";
+import express, { NextFunction, Request, Response } from "express";
+import mongoose, { Error } from "mongoose";
+import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
-import mongoose, { ConnectOptions } from "mongoose";
-import { Error } from "mongoose";
+import { RegisterRoutes } from "../build/routes/routes";
+dotenv.config();
+import http from "http";
+import { buildSchema } from "type-graphql";
+import { ApolloServer } from "apollo-server-express";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { CategoriesResolver } from "./categories/resolver/categories";
 export class Application {
   #app = express();
   #PORT;
@@ -18,8 +22,9 @@ export class Application {
     this.ConfigApplication();
     this.CreateServer();
     this.CreateRoutes();
-    this.ErrorHandeling();
+    this.ConfigGraphql();
     this.ConnectToMongoDb();
+    this.ErrorHandeling();
   }
 
   ConfigApplication() {
@@ -38,9 +43,23 @@ export class Application {
       }
     );
   }
+  async ConfigGraphql() {
+    const schema = await buildSchema({
+      resolvers: [CategoriesResolver],
+      emitSchemaFile: true,
+      validate: false,
+    });
+
+    const server = new ApolloServer({
+      schema,
+      plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
+    });
+
+    await server.start();
+    server.applyMiddleware({ app: this.#app });
+  }
 
   CreateServer() {
-    const http = require("http");
     const server = http.createServer(this.#app);
     server.listen(this.#PORT, () => {
       console.log(`http://localhost:${this.#PORT}/`);
@@ -70,7 +89,10 @@ export class Application {
   }
 
   ErrorHandeling() {
-    this.#app.use(function notFoundHandler(_req, res: Response) {
+    this.#app.use((req, res, next) => {
+      if (req.path === "/graphql") {
+        return next();
+      }
       res.status(404).send({
         message: "Not Found",
       });

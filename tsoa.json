@@ -8,5 +8,5 @@
   },
   "routes": {
     "routesDir": "./build/routes"
-  }
+  }  
 }

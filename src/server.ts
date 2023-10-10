@@ -12,6 +12,7 @@ import { buildSchema } from "type-graphql";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { CategoriesResolver } from "./categories/resolver/categories";
+import { UsersResolver } from "./user/resolver/user.resolver";
 export class Application {
   #app = express();
   #PORT;
@@ -47,7 +48,7 @@ export class Application {
     const schema = await buildSchema({
       resolvers: [CategoriesResolver],
       emitSchemaFile: true,
-      validate: false,
+      validate: true,
     });
 
     const server = new ApolloServer({

@@ -11,7 +11,7 @@ import http from "http";
 import { buildSchema } from "type-graphql";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { CategoriesResolver } from "./categories/resolver/categories";
+import { CategoriesResolver } from "./categories/resolver/categories.resolver";
 import { UsersResolver } from "./user/resolver/user.resolver";
 export class Application {
   #app = express();
@@ -46,7 +46,7 @@ export class Application {
   }
   async ConfigGraphql() {
     const schema = await buildSchema({
-      resolvers: [CategoriesResolver],
+      resolvers: [CategoriesResolver, UsersResolver],
       emitSchemaFile: true,
       validate: true,
     });

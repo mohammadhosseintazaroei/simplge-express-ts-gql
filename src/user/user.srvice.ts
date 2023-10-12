@@ -1,6 +1,6 @@
 import { IUser } from "../types/interfaces/user/user-model.interface";
 import { CreateUserDto } from "./dto/user.dto";
-import { UsersModel } from "./entities/users.entity";
+import { UsersModel } from "./models/users.model";
 
 export type UserCreationParams = Pick<IUser, "mobileNumber" | "firstName">;
 interface getAllUsers {
